@@ -1,8 +1,5 @@
 package com.example.demo.controller;
 
-import java.sql.Date;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,8 +18,6 @@ import com.example.demo.service.VentaService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
-
 @Controller
 public class VuelosController {
 	
@@ -36,14 +31,14 @@ public class VuelosController {
 	private VentaService ventaService;
 	
 	
-	@GetMapping("/venta-boletos")
+	@GetMapping("/venta")
 	public String ventaBoletos(Model model) {
 		List<Ciudad> lista_ciudades = ciudadService.obtenerTodasCiudades();
 		model.addAttribute("lista_ciudades", lista_ciudades);
 		return "index";
 	}
 	
-	@GetMapping("/registrar-boletos")
+	@GetMapping("/registrar")
     public String registrarBoletos(
             @RequestParam("origen") String origen,
             @RequestParam("destino") String destino,
@@ -59,40 +54,13 @@ public class VuelosController {
         if (lista_detalles == null) {
             lista_detalles = new ArrayList<>();
         }
-        
-        Ciudad ciudad_origen = ciudadService.obtenerCiudadPorCodigoPostal(origen);
-        Ciudad ciudad_destino = ciudadService.obtenerCiudadPorCodigoPostal(destino);
-        
-        LocalDate fechaSalidaLocalDate = LocalDate.parse(fechaSalida);
-        LocalDate fechaRetornoLocalDate = LocalDate.parse(fechaRetorno);
-        
-        Date fechaSalidaSql = Date.valueOf(fechaSalidaLocalDate);
-        Date fechaRetornoSql = Date.valueOf(fechaRetornoLocalDate);
-        
-        Double precio_voleto = 50.00;
-        
-        DetalleVenta detalle_venta = DetalleVenta.builder()
-                .venta(null)
-                .codigoPostalOrigen(ciudad_origen)
-                .codigoPostalDestino(ciudad_destino)
-                .cantidad(cantidad)
-                .fechaViaje(fechaSalidaSql)
-                .fechaRetorno(fechaRetornoSql)
-                .subTotal(cantidad * precio_voleto)
-                .build();
+
+        DetalleVenta detalle_venta= detalleVentaService.crearDetalleVentaConDatos(origen, 
+    		   destino, fechaSalida,  fechaRetorno, cantidad, nombreComprador);
         
         lista_detalles.add(detalle_venta);
         
-        Double monto_total = lista_detalles.stream().mapToDouble(DetalleVenta::getSubTotal).sum();
-        
-        LocalDate localDate = LocalDate.now();
-        Date date = Date.valueOf(localDate);
-        
-        Venta venta = Venta.builder()
-                .nombreComprador(nombreComprador)
-                .fechaVenta(date)
-                .montoTotal(monto_total)
-                .build();
+        Venta venta =ventaService.crearVenta(nombreComprador,lista_detalles);
         
         lista_detalles.forEach(detalle -> detalle.setVenta(venta));
         
@@ -104,9 +72,10 @@ public class VuelosController {
         return "index";
     }
 	
-	@GetMapping("/boleto-comprar")
+	@GetMapping("/comprar")
 	public String comprarBoleto(Model model, HttpSession session) {
-	    List<DetalleVenta> lista_detalles = (List<DetalleVenta>) session.getAttribute("lista_detalles");
+	    @SuppressWarnings("unchecked")
+		List<DetalleVenta> lista_detalles = (List<DetalleVenta>) session.getAttribute("lista_detalles");
 	    Venta venta = (Venta) session.getAttribute("venta");
 	    
 	    if(lista_detalles != null && !lista_detalles.isEmpty()) {
@@ -124,9 +93,6 @@ public class VuelosController {
 	        session.setAttribute("lista_detalles", lista_detalles);
 	        return "compra-exitosa";
 	    }
-	    return "redirect:/venta-boletos";
+	    return "redirect:/venta";
 	}
-
-	
-
 }

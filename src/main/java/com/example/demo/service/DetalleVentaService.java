@@ -9,4 +9,6 @@ public interface DetalleVentaService {
     List<DetalleVenta> obtenerTodosDetallesVenta();
     DetalleVenta obtenerDetalleVentaPorId(int id);
     void eliminarDetalleVentaPorId(int id);
+    
+    DetalleVenta crearDetalleVentaConDatos(String origen, String destino, String fechaSalida, String fechaRetorno, int cantidad, String nombreComprador);
 }

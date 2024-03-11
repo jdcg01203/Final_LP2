@@ -11,7 +11,7 @@
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <h1>Formulario de venta de boletos</h1>
-                <form id="ventaBoletosForm" action="/registrar-boletos" method="get">
+                <form id="ventaForm" action="/registrar" method="get">
                     <div class="card">
                         <div class="row align-items-center justify-content-center">
 							    <div class="col-md-6 text-center">
@@ -111,7 +111,7 @@
 					    </div>
 					</div>
                     <br>
-                    <a href="/boleto-comprar" class="btn btn-primary mb-5">[ COMPRAR ]</a>
+                    <a href="/comprar" class="btn btn-primary mb-5">[ COMPRAR ]</a>
                     <div th:if="${alerta}" class="alert alert-danger" role="alert">
                         <p th:text="${alerta}"></p>
                     </div>
@@ -121,7 +121,7 @@
     </div>
     <script>
         function limpiarFormulario() {
-            document.getElementById("ventaBoletosForm").reset();
+            document.getElementById("ventaForm").reset();
         }
     </script>
 </body>
